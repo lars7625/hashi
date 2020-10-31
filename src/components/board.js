@@ -29,12 +29,13 @@
         board = (new Array(boardSize)).fill(0);
     }
     // Set first node
-    // List of nodes with [{position: x=<boardSize, arity: y=0-5, connections: z<=10}]
+    // List of nodes with [{position: x=<boardSize, arity: y= 1 <= maxArity, connections: z= 1 <= maxArity}]
     function setFirstNode() {
         let firstRandomNodePos = rand(0, boardSize)
         let firstRandomNodeArity = rand(minArity, maxArity)
         nodeList.push({position: firstRandomNodePos, arity: firstRandomNodeArity, connections: 0, freeNode: true})
         board[firstRandomNodePos] = 1
+        setNodes(firstRandomNodePos)
     }
     // Sets surrounding positions to not available / to -1
     function setSurNodes(nodeLoc) {
@@ -94,9 +95,9 @@
         }
         return freePos
     }
-    // set arity and connections
+    // set arity to rand num between min- and maxArity and connections to 0
     function setNodeProps(nodeLoc) {
-        let newNode = {position: nodeLoc, arity: rand(minArity, maxArity), connections: 0, freeNode: true}
+        let newNode = {position: nodeLoc, arity: rand(minArity, maxArity + 1), connections: 0, freeNode: true}
         return newNode;
     }
     // randomly select a parent node where arity > connections
@@ -112,23 +113,27 @@
             return availableNodes[rand(0,availableNodes.length)];
         }       
     }
-    // if there are no options available set freeChildNode to false
+    // if there are no options available set freeNode to false
     function noFreeChildNode(nodeLoc) {
-        // if there are no options available set freeChildNode to false
+        // if there are no options available set freeNode to false
         if (freePos.length === 0) {
             nodeList.map((el) => {
                 if(el.position === nodeLoc) el.freeNode = false;
             })
         }
     }
+    // set the number of bridges
     function setConnections(newNode, parentNode) {
         let oneOrTwoBridges
+        // at random pick 1 or 2
         rand(0.2) === 0 ? oneOrTwoBridges = 1 : oneOrTwoBridges = 2
+        // if arity  = 1 or arity - connections = 1 set 1 bridge
         if(parentNode.arity === 1 || newNode.arity === 1 || (parentNode.arity - parentNode.connections) === 1 ||
              (parentNode.arity - parentNode.connections) === 1) {
             parentNode.connections = 1
             newNode.connections = 1
         }
+        // else 1 or 2 bridges
         else {
             parentNode.connections += oneOrTwoBridges
             newNode.connections += oneOrTwoBridges
@@ -146,7 +151,7 @@
             if(parentNode === undefined) break;
             // find positions for new node
             let newNodePos = findFreePos(parentNode.position)  
-            // set freeChildNode to false
+            // set freeNode to false
             if(newNodePos.length === 0) {
                 noFreeChildNode(parentNode.position)
             } else {
@@ -159,14 +164,16 @@
             if(nodeList.length === numBoardNodes) break;
         }
     }
-    // create nodes on board
     let counter = 0
     let finalNodeList = []
+    // 10 tries to create a board
     while(nodeList.length !== numBoardNodes && counter < 10) {
         nodeList = []
         setBoard()
         setNodes() 
         counter++
+        console.log(board)
+        console.log(nodeList)
         // take the biggest nodeList of all the tries
         if(nodeList.length > finalNodeList.length) finalNodeList = [...nodeList]
     }
