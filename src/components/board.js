@@ -1,8 +1,8 @@
 (function boardGenerator (rowSize, colSize) {
     // row size
-    rowSize = 6;
+    rowSize = 10;
     // column size
-    colSize = 6;
+    colSize = 10;
     const boardSize = rowSize * colSize;
     let board = []
     let nodeList = []
@@ -151,9 +151,11 @@
             if(parentNode === undefined) break;
             // find positions for new node
             let newNodePos = findFreePos(parentNode.position)  
-            // set freeNode to false
+            // if there are not childnodes available set freeNode to false and reiterate
             if(newNodePos.length === 0) {
                 noFreeChildNode(parentNode.position)
+            /* set connections, push node to list, set boardposition to -1 
+               and set surrounding nodes to -1 */
             } else {
                 newNode = setNodeProps(newNodePos[rand(0, newNodePos.length)])
                 setConnections(newNode, parentNode)
@@ -166,7 +168,7 @@
     }
     let counter = 0
     let finalNodeList = []
-    // 10 tries to create a board
+    // try untill it reached the set number of nodes or after 10 tries
     while(nodeList.length !== numBoardNodes && counter < 10) {
         nodeList = []
         setBoard()
