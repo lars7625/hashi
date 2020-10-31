@@ -1,8 +1,8 @@
 (function boardGenerator (rowSize, colSize) {
     // row size
-    rowSize = 10;
+    rowSize = 4;
     // column size
-    colSize = 10;
+    colSize = 4;
     const boardSize = rowSize * colSize;
     let board = []
     let nodeList = []
@@ -24,18 +24,18 @@
 
         return gridPos;
     }
-    // Create an array  with amount of elements set to 0 based of boardSize
+    // Create an array  with amount of elements set to 0 based on boardSize
     function setBoard() {
         board = (new Array(boardSize)).fill(0);
     }
     // Set first node
     // List of nodes with [{position: x=<boardSize, arity: y= 1 <= maxArity, connections: z= 1 <= maxArity}]
     function setFirstNode() {
-        let firstRandomNodePos = rand(0, boardSize)
-        let firstRandomNodeArity = rand(minArity, maxArity)
+        const firstRandomNodePos = rand(0, boardSize)
+        const firstRandomNodeArity = rand(minArity, maxArity)
+        setSurNodes(firstRandomNodePos)
         nodeList.push({position: firstRandomNodePos, arity: firstRandomNodeArity, connections: 0, freeNode: true})
         board[firstRandomNodePos] = 1
-        setNodes(firstRandomNodePos)
     }
     // Sets surrounding positions to not available / to -1
     function setSurNodes(nodeLoc) {
@@ -104,7 +104,7 @@
     function getParentNode() {
         availableNodes = []
         nodeList.map((el) => {
-            if(el.arity > el.connections && el.freeNode && (el.arity - el.connections != 0)) availableNodes.push(el)
+            if(el.arity > el.connections && el.freeNode && (el.arity - el.connections !== 0)) availableNodes.push(el)
         })
         // for the first time
         if(nodeList.length === 1) {
@@ -115,7 +115,6 @@
     }
     // if there are no options available set freeNode to false
     function noFreeChildNode(nodeLoc) {
-        // if there are no options available set freeNode to false
         if (freePos.length === 0) {
             nodeList.map((el) => {
                 if(el.position === nodeLoc) el.freeNode = false;
@@ -124,14 +123,20 @@
     }
     // set the number of bridges
     function setConnections(newNode, parentNode) {
-        let oneOrTwoBridges
+        const oneOrTwoBridges = rand(0.2) === 0 ? 1 : 2
+        console.log(oneOrTwoBridges)
         // at random pick 1 or 2
-        rand(0.2) === 0 ? oneOrTwoBridges = 1 : oneOrTwoBridges = 2
+        
         // if arity  = 1 or arity - connections = 1 set 1 bridge
-        if(parentNode.arity === 1 || newNode.arity === 1 || (parentNode.arity - parentNode.connections) === 1 ||
-             (parentNode.arity - parentNode.connections) === 1) {
+        if(parentNode.arity === 1 || newNode.arity === 1) {
             parentNode.connections = 1
             newNode.connections = 1
+        }
+        // if arity - connections is 1
+        else if((parentNode.arity - parentNode.connections) === 1 ||
+        (parentNode.arity - parentNode.connections) === 1){
+            parentNode.connections += 1
+            newNode.connections += 1
         }
         // else 1 or 2 bridges
         else {
@@ -139,12 +144,14 @@
             newNode.connections += oneOrTwoBridges
         }
     }
+
     // loop to setup all the nodes on the board with N = 2 * number of max nodes
     function setNodes(){
         for(i = 0; i < (numBoardNodes * 2); i++) {
             let newNode
             // set first node
-            if(nodeList.length === 0) setFirstNode()
+            if(nodeList.length === 0) {setFirstNode()
+            }
             // randomly select an already existing node
             const parentNode = getParentNode()
             // break in the event there are no free childnodes available
@@ -156,7 +163,7 @@
                 noFreeChildNode(parentNode.position)
             /* set connections, push node to list, set boardposition to -1 
                and set surrounding nodes to -1 */
-            } else {
+            } else {        
                 newNode = setNodeProps(newNodePos[rand(0, newNodePos.length)])
                 setConnections(newNode, parentNode)
                 nodeList.push(newNode)
@@ -174,12 +181,13 @@
         setBoard()
         setNodes() 
         counter++
-        console.log(board)
-        console.log(nodeList)
-        // take the biggest nodeList of all the tries
+        //console.log(nodeList)
+        // save largest list in case the set number of board nodes aren't reached
         if(nodeList.length > finalNodeList.length) finalNodeList = [...nodeList]
     }
+    
     console.log(finalNodeList)
+
 })()
 
 // export default boardGenerator .
