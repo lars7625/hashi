@@ -23,7 +23,6 @@ export default function boardGenerator (numOfCols, numOfRows) {
   // Create an array  with amount of elements set to 0 based on boardSize
   function setBoard () {
     board = (new Array(boardSize)).fill(0)
-    board.length
   }
   // Set first node
   // List of nodes with [{position: x=<boardSize, arity: y= 1 <= maxArity, connections: z= 1 <= maxArity}]
@@ -51,7 +50,7 @@ export default function boardGenerator (numOfCols, numOfRows) {
     }
     // node is not in the bottom row
     if (gridPos.row !== numOfRows - 1) {
-      board[nodeLoc + numOfCols] = -1  
+      board[nodeLoc + numOfCols] = -1
     }
   }
   // return list of free positions for new node
@@ -121,7 +120,7 @@ export default function boardGenerator (numOfCols, numOfRows) {
   // set the number of bridges
   function setConnections (newNode, parentNode) {
     // at random pick 1 or 2
-    const oneOrTwoBridges = rand(0,2) === 0 ? 1 : 2
+    const oneOrTwoBridges = rand(0, 2) === 0 ? 1 : 2
 
     // if arity  = 1 or arity - connections = 1 set 1 bridge
     if (newNode.arity === 1) {
@@ -138,7 +137,7 @@ export default function boardGenerator (numOfCols, numOfRows) {
     }
     nodeList[nodeList.length - 1].connections = newNode.connections
     nodeList.map(el => {
-      if(el.position === parentNode.position) {
+      if (el.position === parentNode.position) {
         el.connections = parentNode.connections
       }
     })
@@ -204,33 +203,34 @@ export default function boardGenerator (numOfCols, numOfRows) {
     // check positions in row left of node
     for (let i = nodeLoc - 2; i >= gridPos.row * numOfCols; i--) {
       if (nodeLocList.includes(i)) {
-        crossPos.push(i)
+        crossPos.push('w' + i)
         break
       }
     }
     // check positions in row right of node
     for (let i = nodeLoc + 2; i < (gridPos.row + 1) * numOfCols; i++) {
       if (nodeLocList.includes(i)) {
-        crossPos.push(i)
+        crossPos.push('e' + i)
         break
       }
     }
     // check positions in column north of node
     for (let i = nodeLoc - (numOfCols * 2); i >= 0; i -= numOfCols) {
       if (nodeLocList.includes(i)) {
-        crossPos.push(i)
+        crossPos.push('n' + i)
         break
       }
     }
     // check positions in column south of node
     for (let i = nodeLoc + (numOfCols * 2); i <= boardSize; i += numOfCols) {
-      if (nodeLocList.includes(i)) {
+      if (nodeLocList.includes('s' + i)) {
         crossPos.push(i)
         break
       }
     }
     return crossPos
   }
+  // set the list of nodes a node is connected to as a property
   finalNodeList.map(el => {
     el.nodeToNode = getNodeToNode(el.position)
   })
