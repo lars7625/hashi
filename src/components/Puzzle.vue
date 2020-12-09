@@ -1,25 +1,34 @@
 <template>
   <div class="hello">
-    <svg class="chart" :viewBox="viewbox" :width="gridWidth" :height="gridHeight">
-      <!-- invisible lines to trigger function -->
-      <g fill="white" stroke="grey" stroke-width="1">
-        <!-- horizontal grid line -->
-        <line v-for="(n, i) in numOfRows" :key="'hl' + i" :x1="0" :y1="i * scale" :x2="gridWidth" :y2="i * scale"></line>
-        <!-- vertical grid line -->
-        <line v-for="(n, i) in numOfCols" :key="'vl' + i" :x1="i * scale" :y1="0" :x2="i * scale" :y2="gridHeight"></line>
-      </g>
-      <line v-for="(n,i) in singleBridgeList" stroke="black" stroke-width="5" :key="'sBridge' + i" :x1="xGridPosN(singleBridgeList[i][0])" :y1="yGridPosN(singleBridgeList[i][0])" :x2="xGridPosN(singleBridgeList[i][1])" :y2="yGridPosN(singleBridgeList[i][1])"></line>
-      <!-- if two bridges -->
-      <line v-for="(n,i) in doubleBridgeList" stroke="black" stroke-width="5" :key="'dBridgeTop' + i" :x1="xGridPosB1of2(doubleBridgeList[i][0])" :y1="yGridPosB1of2(doubleBridgeList[i][0])" :x2="xGridPosB1of2(doubleBridgeList[i][1])" :y2="yGridPosB1of2(doubleBridgeList[i][1])"></line>
-      <line v-for="(n,i) in doubleBridgeList" stroke="black" stroke-width="5" :key="'dBridgeBot' + i" :x1="xGridPosB2of2(doubleBridgeList[i][0])" :y1="yGridPosB2of2(doubleBridgeList[i][0])" :x2="xGridPosB2of2(doubleBridgeList[i][1])" :y2="yGridPosB2of2(doubleBridgeList[i][1])"></line>
-      <line v-on:click="setBridges(i)" stroke="white" stroke-opacity="0%" stroke-width="20" v-for="(n, i) in connNtN" :key="'bridgeClick' + i" :x1="xGridPosN(connNtN[i][0])" :y1="yGridPosN(connNtN[i][0])" :x2="xGridPosN(connNtN[i][1])" :y2="yGridPosN(connNtN[i][1])"></line>
-      <!-- circles for nodes -->
-      <g fill="white" stroke="blue" stroke-width="2">
-        <circle v-for="(n, i) in numOfNodes" :key="i" :cx="calcXPosC(i)" :cy="calcYPosC(i)" :r="circleRadius" />
-      </g>
-      <!-- text numbers in hashi circles -->
-      <text v-for="(n, i) in numOfNodes" :key="i" :x="calcXPosT(i)" :y="calcYPosT(i)" fill="black" dominant-baseline="middle" text-anchor="middle">{{ board[i].connections }}</text>
-    </svg>
+    <div>
+      <svg class="chart" :viewBox="viewbox" :width="gridWidth" :height="gridHeight">
+        <!-- invisible lines to trigger function -->
+        <g fill="white" stroke="grey" stroke-width="1">
+          <!-- horizontal grid line -->
+          <line v-for="(n, i) in numOfRows" :key="'hl' + i" :x1="0" :y1="i * scale" :x2="gridWidth" :y2="i * scale"></line>
+          <!-- vertica l grid line -->
+          <line v-for="(n, i) in numOfCols" :key="'vl' + i" :x1="i * scale" :y1="0" :x2="i * scale" :y2="gridHeight"></line>
+        </g>
+        <g :stroke="bridgeColor" :stroke-width="bridgeStrokeW">
+        <!-- if one bridge -->
+        <line v-for="(n,i) in singleBridgeList" :key="'sBridge' + i" :x1="xGridPosN(singleBridgeList[i][0])" :y1="yGridPosN(singleBridgeList[i][0])" :x2="xGridPosN(singleBridgeList[i][1])" :y2="yGridPosN(singleBridgeList[i][1])"></line>
+        <!-- if two bridges -->
+        <line v-for="(n,i) in doubleBridgeList" :key="'dBridgeTop' + i" :x1="xGridPosB1of2(doubleBridgeList[i][0])" :y1="yGridPosB1of2(doubleBridgeList[i][0])" :x2="xGridPosB1of2(doubleBridgeList[i][1])" :y2="yGridPosB1of2(doubleBridgeList[i][1])"></line>
+        <line v-for="(n,i) in doubleBridgeList" :key="'dBridgeBot' + i" :x1="xGridPosB2of2(doubleBridgeList[i][0])" :y1="yGridPosB2of2(doubleBridgeList[i][0])" :x2="xGridPosB2of2(doubleBridgeList[i][1])" :y2="yGridPosB2of2(doubleBridgeList[i][1])"></line>
+        </g>
+        <!-- hidden bridges that serve to set the bridges -->
+        <line v-on:click="setBridges(i)" stroke="white" stroke-opacity="0%" stroke-width="20" v-for="(n, i) in connNtN" :key="'bridgeClick' + i" :x1="xGridPosN(connNtN[i][0])" :y1="yGridPosN(connNtN[i][0])" :x2="xGridPosN(connNtN[i][1])" :y2="yGridPosN(connNtN[i][1])"></line>
+        <!-- circles for nodes -->
+        <g fill="white" :stroke="circleColor" stroke-width="2">
+          <circle v-for="(n, i) in numOfNodes" :key="i" :cx="calcXPosC(i)" :cy="calcYPosC(i)" :r="circleRadius" />
+        </g>
+        <!-- text numbers in hashi circles -->
+        <text v-for="(n, i) in numOfNodes" :key="i" :x="calcXPosT(i)" :y="calcYPosT(i)" fill="black" dominant-baseline="middle" text-anchor="middle">{{ board[i].connections }}</text>
+      </svg>
+    </div>
+    <div>
+      <button v-on:click="checkSolution()">Check  Puzzle</button>
+    </div>
   </div>
 </template>
 
@@ -42,10 +51,12 @@ export default {
       offSetX: -20,
       offSetY: -20,
       circleRadius: 12,
-      doubleBridgeOffSet: 5,
+      doubleBridgeOffSet: 3,
       singleBridgeList: [],
       doubleBridgeList: [],
-      bridgeColor: 'black'
+      bridgeColor: 'black',
+      circleColor: 'grey',
+      bridgeStrokeW: 3
     }
   },
   components: {
@@ -76,7 +87,18 @@ export default {
       return nodeCounter / 2
     },
     connNtN: function () {
-      return this.nodeToNodeCoords()
+      const nodesConn = []
+      const parentNodes = []
+      this.board.forEach(node => {
+        node.nodeToNode.map(el => {
+          // check for duplicates if not add pair
+          if (!parentNodes.includes(el)) {
+            nodesConn.push([node.position, el])
+            parentNodes.push(node.position)
+          }
+        })
+      })
+      return nodesConn
     }
   },
   methods: {
@@ -91,20 +113,6 @@ export default {
     },
     calcYPosT: function (i) {
       return Math.floor(this.board[i].position / this.numOfCols) * this.scale
-    },
-    nodeToNodeCoords: function () {
-      const nodesConn = []
-      const parentNodes = []
-      this.board.forEach(node => {
-        node.nodeToNode.map(el => {
-          // check for duplicates if not add pair
-          if (!parentNodes.includes(el)) {
-            nodesConn.push([node.position, el])
-            parentNodes.push(node.position)
-          }
-        })
-      })
-      return nodesConn
     },
     xGridPosN: function (nodeLoc) {
       return (nodeLoc % this.numOfCols) * this.scale
@@ -138,6 +146,41 @@ export default {
       return arr.filter(el => {
         return el !== val
       })
+    },
+    checkSolution: function () {
+      const nodeList = [...this.board]
+      const oneBridge = this.singleBridgeList.flat()
+      const twoBridges = this.doubleBridgeList.flat()
+      nodeList.map(el => {
+        el.bridges = 0
+        oneBridge.forEach(sBridge => {
+          if (el.position === sBridge) {
+            el.bridges += 1
+          }
+        })
+        twoBridges.forEach(dBridge => {
+          if (el.position === dBridge) {
+            el.bridges += 2
+          }
+        })
+      })
+      let counter = 0
+      nodeList.forEach(el => {
+        if (el.connections === el.bridges) {
+          counter++
+        }
+      })
+      if (counter === nodeList.length) {
+        alert('won')
+      } else {
+        alert('you suck')
+      }
+    }
+  },
+  watch: {
+    numOfCols: function () {
+      this.singleBridgeList = []
+      this.doubleBridgeList = []
     }
   }
 }
