@@ -4,9 +4,9 @@
     <Puzzle :numOfCols='numOfCols' :numOfRows='numOfRows' />
     <div class="controls">
       <select v-model="selectedSize" id="sizeSet" class="sizeOptions">
-        <option value="3*4">3*4</option>
-        <option value="4*5">4x5</option>
-        <option value="15*15">15*15</option>
+        <option value="5*5">5*5</option>
+        <option value="6*8">6x8</option>
+        <option value="10*12">10*12</option>
       </select>
     </div>
   </div>
@@ -23,7 +23,7 @@ export default {
   },
   data () {
     return {
-      selectedSize: '3*4'
+      selectedSize: '5*5'
     }
   },
   computed: {

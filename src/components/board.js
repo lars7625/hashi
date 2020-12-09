@@ -3,11 +3,11 @@ export default function boardGenerator (numOfCols, numOfRows) {
   let board = []
   let nodeList = []
   // number of nodes the board can contain
-  const numBoardNodes = boardSize / 3
+  const numBoardNodes = boardSize / 2
   // min arity / options for connections
   const minArity = 1
   // max arity / options for connections
-  const maxArity = 6
+  const maxArity = 8
 
   function rand (min, max) {
     return Math.floor(Math.random() * (max - min)) + min
@@ -29,12 +29,12 @@ export default function boardGenerator (numOfCols, numOfRows) {
   function setFirstNode () {
     const firstRandomNodePos = rand(0, boardSize)
     const firstRandomNodeArity = rand(minArity, maxArity)
-    setSurNodes(firstRandomNodePos)
+    setSurPos(firstRandomNodePos)
     nodeList.push({ position: firstRandomNodePos, arity: firstRandomNodeArity, connections: 0, freeNode: true, nodeToNode: [] })
     board[firstRandomNodePos] = 1
   }
   // Sets surrounding positions to not available / to -1
-  function setSurNodes (nodeLoc) {
+  function setSurPos (nodeLoc) {
     const gridPos = getGridPos(nodeLoc)
     // node is not first el in a row
     if (gridPos.col !== 0) {
@@ -58,7 +58,7 @@ export default function boardGenerator (numOfCols, numOfRows) {
     const freePos = []
     const gridPos = getGridPos(nodeLoc)
     // check positions in row left of node
-    for (let i = nodeLoc - 2; i >= gridPos.row * numOfCols; i--) {
+    for (let i = nodeLoc - 2; i >= gridPos.row * numOfCols && i >= nodeLoc - 3; i--) {
       if (board[i] === 0) {
         freePos.push(i)
       } else {
@@ -66,7 +66,7 @@ export default function boardGenerator (numOfCols, numOfRows) {
       }
     }
     // check positions in row right of node
-    for (let i = nodeLoc + 2; i < (gridPos.row + 1) * numOfCols; i++) {
+    for (let i = nodeLoc + 2; i < (gridPos.row + 1) * numOfCols && i <= nodeLoc + 3; i++) {
       if (board[i] === 0) {
         freePos.push(i)
       } else {
@@ -74,7 +74,7 @@ export default function boardGenerator (numOfCols, numOfRows) {
       }
     }
     // check positions in column north of node
-    for (let i = nodeLoc - (numOfCols * 2); i >= 0; i -= numOfCols) {
+    for (let i = nodeLoc - (numOfCols * 2); i >= 0 && i >= nodeLoc - (numOfCols * 3); i -= numOfCols) {
       if (board[i] === 0) {
         freePos.push(i)
       } else {
@@ -82,7 +82,7 @@ export default function boardGenerator (numOfCols, numOfRows) {
       }
     }
     // check positions in column south of node
-    for (let i = nodeLoc + (numOfCols * 2); i <= boardSize; i += numOfCols) {
+    for (let i = nodeLoc + (numOfCols * 2); i <= boardSize && i <= nodeLoc + (numOfCols * 2); i += numOfCols) {
       if (board[i] === 0) {
         freePos.push(i)
       } else {
@@ -135,12 +135,6 @@ export default function boardGenerator (numOfCols, numOfRows) {
       parentNode.connections += oneOrTwoBridges
       newNode.connections += oneOrTwoBridges
     }
-    nodeList[nodeList.length - 1].connections = newNode.connections
-    nodeList.map(el => {
-      if (el.position === parentNode.position) {
-        el.connections = parentNode.connections
-      }
-    })
   }
   // loop to setup all the nodes on the board with N = 2 * number of max nodes
   function setNodes () {
@@ -166,7 +160,7 @@ export default function boardGenerator (numOfCols, numOfRows) {
         nodeList.push(newNode)
         setConnections(newNode, parentNode)
         board[newNode.position] = 1
-        setSurNodes(newNode.position)
+        setSurPos(newNode.position)
       }
       if (nodeList.length === numBoardNodes) break
     }
@@ -175,7 +169,7 @@ export default function boardGenerator (numOfCols, numOfRows) {
   let finalNodeList = []
   let finalBoard = []
   // try untill it reached the set number of nodes or after 10 tries
-  while (nodeList.length !== numBoardNodes && counter < 10) {
+  while (nodeList.length !== numBoardNodes && counter < 30) {
     nodeList = []
     setBoard()
     setNodes()
@@ -203,27 +197,27 @@ export default function boardGenerator (numOfCols, numOfRows) {
     // check positions in row left of node
     for (let i = nodeLoc - 2; i >= gridPos.row * numOfCols; i--) {
       if (nodeLocList.includes(i)) {
-        crossPos.push('w' + i)
+        crossPos.push(i)
         break
       }
     }
     // check positions in row right of node
     for (let i = nodeLoc + 2; i < (gridPos.row + 1) * numOfCols; i++) {
       if (nodeLocList.includes(i)) {
-        crossPos.push('e' + i)
+        crossPos.push(i)
         break
       }
     }
     // check positions in column north of node
     for (let i = nodeLoc - (numOfCols * 2); i >= 0; i -= numOfCols) {
       if (nodeLocList.includes(i)) {
-        crossPos.push('n' + i)
+        crossPos.push(i)
         break
       }
     }
     // check positions in column south of node
     for (let i = nodeLoc + (numOfCols * 2); i <= boardSize; i += numOfCols) {
-      if (nodeLocList.includes('s' + i)) {
+      if (nodeLocList.includes(i)) {
         crossPos.push(i)
         break
       }
