@@ -3,7 +3,7 @@
     <div>
       <svg class="chart" :viewBox="viewbox" :width="gridWidth" :height="gridHeight">
         <!-- invisible lines to trigger function -->
-        <g fill="white" stroke="grey" stroke-width="1">
+        <g :stroke="gridColor" stroke-width="1">
           <!-- horizontal grid line -->
           <line v-for="(n, i) in numOfRows" :key="'hl' + i" :x1="0" :y1="i * scale" :x2="gridWidth" :y2="i * scale"></line>
           <!-- vertica l grid line -->
@@ -16,8 +16,10 @@
         <line v-for="(n,i) in doubleBridgeList" :key="'dBridgeTop' + i" :x1="xGridPosB1of2(doubleBridgeList[i][0])" :y1="yGridPosB1of2(doubleBridgeList[i][0])" :x2="xGridPosB1of2(doubleBridgeList[i][1])" :y2="yGridPosB1of2(doubleBridgeList[i][1])"></line>
         <line v-for="(n,i) in doubleBridgeList" :key="'dBridgeBot' + i" :x1="xGridPosB2of2(doubleBridgeList[i][0])" :y1="yGridPosB2of2(doubleBridgeList[i][0])" :x2="xGridPosB2of2(doubleBridgeList[i][1])" :y2="yGridPosB2of2(doubleBridgeList[i][1])"></line>
         </g>
+        <!-- highlist bridge on hover -->
+        <line stroke="red" stroke-opacity="70%" stroke-width="5" :key="'bridgehover'" :x1="xGridPosN(highlightBridgeList[0])" :y1="yGridPosN(highlightBridgeList[0])" :x2="xGridPosN(highlightBridgeList[1])" :y2="yGridPosN(highlightBridgeList[1])"></line>
         <!-- hidden bridges that serve to set the bridges -->
-        <line v-on:click="setBridges(i)" stroke="white" stroke-opacity="0%" stroke-width="20" v-for="(n, i) in connNtN" :key="'bridgeClick' + i" :x1="xGridPosN(connNtN[i][0])" :y1="yGridPosN(connNtN[i][0])" :x2="xGridPosN(connNtN[i][1])" :y2="yGridPosN(connNtN[i][1])"></line>
+        <line  v-for="(n, i) in connNtN" @mouseover="highLightBridge(connNtN[i])" @mouseleave="unHighLightBridge()" v-on:click="setBridges(i)" stroke="white" stroke-opacity="0%" stroke-width="5" :key="'bridgeClick' + i" :x1="xGridPosN(connNtN[i][0])" :y1="yGridPosN(connNtN[i][0])" :x2="xGridPosN(connNtN[i][1])" :y2="yGridPosN(connNtN[i][1])"></line>
         <!-- circles for nodes -->
         <g fill="white" :stroke="circleColor" stroke-width="2">
           <circle v-for="(n, i) in numOfNodes" :key="i" :cx="calcXPosC(i)" :cy="calcYPosC(i)" :r="circleRadius" />
@@ -47,16 +49,18 @@ export default {
   },
   data () {
     return {
-      scale: 50,
+      scale: 20,
       offSetX: -20,
       offSetY: -20,
-      circleRadius: 12,
+      circleRadius: 10,
       doubleBridgeOffSet: 3,
       singleBridgeList: [],
       doubleBridgeList: [],
+      highlightBridgeList: [0, 0],
       bridgeColor: 'black',
       circleColor: 'grey',
-      bridgeStrokeW: 3
+      gridColor: 'grey',
+      bridgeStrokeW: 2
     }
   },
   components: {
@@ -78,13 +82,6 @@ export default {
     },
     board: function () {
       return boardGenerator(this.numOfCols, this.numOfRows)
-    },
-    numOfConnNodes: function () {
-      let nodeCounter = 0
-      this.board.forEach(el => {
-        nodeCounter += el.nodeToNode.length
-      })
-      return nodeCounter / 2
     },
     connNtN: function () {
       const nodesConn = []
@@ -141,6 +138,12 @@ export default {
       } else if (this.doubleBridgeList.includes(this.connNtN[i])) {
         this.doubleBridgeList = this.arrRemove(this.doubleBridgeList, this.connNtN[i])
       }
+    },
+    highLightBridge: function (nodes) {
+      this.highlightBridgeList = nodes
+    },
+    unHighLightBridge: function () {
+      this.highlightBridgeList = [0, 0]
     },
     arrRemove: function (arr, val) {
       return arr.filter(el => {
