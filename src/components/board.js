@@ -25,7 +25,7 @@ export default function boardGenerator (numOfCols, numOfRows) {
     board = (new Array(boardSize)).fill(0)
   }
   // Set first node
-  // List of nodes with [{position: x=<boardSize, arity: y= 1 <= maxArity, connections: z= 1 <= maxArity}]
+  // List of nodes with [{position: x=<boardSize, arity: y= 1 <= maxArity, connections: z= 1 <= maxArity, nodeToNode:[]}]
   function setFirstNode () {
     const firstRandomNodePos = rand(0, boardSize)
     const firstRandomNodeArity = rand(minArity, maxArity)

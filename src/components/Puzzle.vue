@@ -63,7 +63,7 @@
       </svg>
     </div>
     <div>
-      <button v-on:click="checkSolution()">Check  Puzzle5</button>
+      <button v-on:click="checkSolution()">Check  Puzzle</button>
     </div>
   </div>
 </template>
@@ -274,8 +274,6 @@ export default {
               break
             } else if (this.board[i] === 0 && this.unClickableNodes.includes(nodes)) {
               betweenNodesCounter++
-              console.log(betweenNodesCounter)
-              console.log(node2Grid.col - node1Grid.col)
               if (betweenNodesCounter === (node2Grid.col - node1Grid.col - 1)) {
                 this.unClickableNodes = this.arrRemove(this.unClickableNodes, nodes)
                 betweenNodesCounter = 0
